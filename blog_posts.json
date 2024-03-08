@@ -1,0 +1,65 @@
+[
+    {
+        "id": 1,
+        "hash": 63424817600644217392589876727497683260227743175798728291494025787234400951476,
+        "title": "Bananas!",
+        "author": "admin",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 2,
+        "hash": 23023576218557376339168578211095637851928453248508943282298989892312561710665,
+        "title": "Test",
+        "author": "admin",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 3,
+        "hash": 19690492821272335132713824812938813016622030837050120491021870620055037007609,
+        "title": "Test2",
+        "author": "admin",
+        "visibility": "visible",
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 4,
+        "hash": 42380341588025564083768732078906062820549937931848545975259879364803380983589,
+        "title": "Even more bananas",
+        "author": "Banana",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 5,
+        "hash": 73202230512959822632373064976277737985734454113644130797346008696302971382370,
+        "title": "Bananas are underated",
+        "author": "admin",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 6,
+        "hash": 107220624422197551466875924322981914528123798217476793563957863762051520300839,
+        "title": "test",
+        "author": "User",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    },
+    {
+        "id": 7,
+        "hash": 80700361004740975508212445847050141586429256170125788083707137929886957399317,
+        "title": "Teste",
+        "author": "Vojta",
+        "visibility": null,
+        "users": [],
+        "contents": []
+    }
+]
