@@ -135,34 +135,39 @@ def register():
 @app.route('/api/create_chat', methods=['POST'])
 def submit_post():
     if 'username' not in session:
-        return jsonify({"message": "You must be logged in to create a chat"}), 401
+        return jsonify({"message": "You must be logged in to create an order"}), 401
 
-    # Load the current ID from id.txt
-    current_id = load_id() + 1
+    cursor = conn.cursor()
+    cursor = database.execute_select(cursor, "SELECT [id] FROM [User] WHERE [username] = '" + str(session['username'] + "'"))
+    user_id = cursor.fetchall()[0][0]
 
-    new_chat = {
-        "id": current_id,
-        "hash": chat_hash(request.form.get("title"), current_id),
-        "title": request.form.get("title"),
-        "author": request.form.get("author"),
-        "visibility": request.form.get("visibility"),
-        "users": [],
-        "contents": []
-    }
+    database.execute_insert(conn,
+                            cursor,
+                            "INSERT INTO [Order] ([id_user], [message]) VALUES (?, ?)",
+                            (user_id, request.form.get("message")))
 
-    save_id(current_id)
-    blog_posts.append(new_chat)
-
-    # Save the updated blog posts to the JSON file
-    with open('blog_posts.json', 'w') as file:
-        json.dump(blog_posts, file, indent=4)
-
-    return jsonify({"message": "Chat created successfully"})
+    return jsonify({"message": "Order created successfully"})
 
 # API endpoint to get rooms
 @app.route('/api/rooms', methods=['GET'])
 def get_posts():
-    return jsonify(blog_posts)
+    cursor = conn.cursor()
+    cursor = database.execute_select(cursor, "SELECT [id] FROM [User] WHERE [username] = '" + str(session['username'] + "'"))
+    user_id = cursor.fetchall()[0][0]
+
+    cursor = database.execute_select(cursor, "SELECT * FROM [Order] WHERE [id_user] = " + str(user_id))
+    orders = list()
+    for row in cursor.fetchall():
+        if row[2] == 1:
+            continue
+
+        order = {
+            'id': int(row[0]),
+            'message': str(row[3])
+        }
+        orders.append(order)
+
+    return jsonify(orders)
 
 @app.route('/api/rooms/<int:room_id>', methods=['GET'])
 def get_post(room_id):

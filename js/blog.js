@@ -1,11 +1,8 @@
 // blog.js
 
-function createChat() {
+function createOrder() {
     var form = document.getElementById("new_room");
     var formData = new FormData(form);
-
-    // Add the username of the logged-in user to the formData
-    formData.append("author", getUsername());  // Using the getUsername function from auth.js
 
     fetch('/api/create_chat', {
         method: 'POST',
@@ -22,30 +19,30 @@ function createChat() {
     fetchRooms();
 }
 
-function createRoomPreview(title, author, visibility, users, id) {
+function createRoomPreview(message, id) {
     var postDiv = document.createElement("div");
     postDiv.classList.add("Blog");
 
-    var titleElement = document.createElement("h2");
-    titleElement.innerText = title + " by " + author;
+    // var titleElement = document.createElement("h2");
+    // titleElement.innerText = title + " by " + author;
 
     // var contentsElement = document.createElement("p");
     // contentsElement.innerText = users;
 
     var infoElement = document.createElement("p");
-    var locked = "";
-    if (visibility == "visible") {
+    //var locked = "";
+    /*if (visibility == "visible") {
         locked = "No"
     } else {
         locked = "Yes"
-    }
-    infoElement.innerText = "Id: " + id + " Locked: " + locked;
+    }*/
+    infoElement.innerText = message;
 
-    postDiv.appendChild(titleElement);
+    //postDiv.appendChild(titleElement);
     postDiv.appendChild(infoElement);
 
     var joinButton = document.createElement("button");
-    joinButton.innerText = "Join";
+    joinButton.innerText = "Cancel";
     joinButton.dataset.roomId = id;  // Set the room ID as a data attribute
     joinButton.addEventListener("click", function() {
         // Send a WebSocket message to join the room
@@ -79,7 +76,7 @@ function updateRoomPreviews(rooms) {
     // Add the updated room previews
     for (var i = 0; i < rooms.length; i++) {
         var room = rooms[i];
-        createRoomPreview(room.title, room.author, room.visibility, room.users, room.id);
+        createRoomPreview(room.message, room.id);
     }
 
     // Add click event listeners to join buttons
