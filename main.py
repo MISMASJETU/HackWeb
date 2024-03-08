@@ -7,6 +7,8 @@ import os
 import hashlib
 from flask_socketio import SocketIO, emit
 
+conn = None
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the random string'
 bcrypt = Bcrypt(app)
@@ -53,23 +55,6 @@ if not os.path.exists(json_file_path):
 with open(json_file_path, 'r') as file:
     blog_posts = json.load(file)
 
-"""
-@socketio.on('new_message')
-def handle_new_message(data):
-    for i in range(0,100):
-        print("Recieved")
-    room_id = data['room_id']
-    message = data['message']
-
-    # Find the room by ID
-    room = next((r for r in blog_posts if r["id"] == room_id), None)
-
-    if room:
-        room["contents"].append({"author": session['username'], "message": message})
-
-        # Broadcast the new message to all clients in the room
-        socketio.emit('update_room', {'room_id': room_id, 'contents': room["contents"]}, room=room_id)
-"""
 # Route to serve the HTML file
 @app.route('/')
 def index():
@@ -88,7 +73,19 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    if username in users and bcrypt.check_password_hash(users[username], password):
+    cursor = conn.cursor()
+    cursor = database.execute_select(cursor, "SELECT [username], [password] FROM [User]")
+
+    condition1 = False
+    condition2 = False
+
+    for row in cursor.fetchall():
+        if row[0] == username:
+            condition1 = True
+            if bcrypt.check_password_hash(row[1], password):
+                condition2 = True
+
+    if condition1 and condition2:
         session['username'] = username
         return jsonify({"success": True, "message": "Login successful"})
     else:
@@ -109,18 +106,16 @@ from flask_bcrypt import generate_password_hash
 
 def add_user(username, password):
     # Check if the username already exists
-    if username in users:
+    cursor = conn.cursor()
+    cursor = database.execute_select(cursor, "SELECT [username] FROM [User]")
+    if username in cursor.fetchall():
         return {"success": False, "message": "Username already exists"}
 
     # Hash the password before storing it
     hashed_password = generate_password_hash(password).decode('utf-8')
 
     # Add the new user to the dictionary
-    users[username] = hashed_password
-
-    # Save the updated users to the JSON file
-    with open(users_file_path, 'w') as user_file:
-        json.dump(users, user_file, indent=4)
+    database.execute_insert(conn, cursor, "INSERT INTO [User] (username, password) VALUES (?, ?)", (username, hashed_password))
 
     return {"success": True, "message": "User added successfully"}
 
@@ -186,109 +181,22 @@ def chat_hash(name, id):
 
 
 
-import websockets
 import asyncio
 import time
 
 PORT = 8080
 
-# A set of connected ws clients
-connected = list()
-banned_IPs = dict()
-unban_time = 10
-client_id = 1
-
-
-# The main behavior function for this server
-async def echo(websocket, path):
-    global client_id
-    client_ip = websocket.remote_address[0]
-    print(f"new ip: {websocket.remote_address} id: {client_id}")
-    print(f"An ip just connected + {banned_IPs}")
-    if client_ip in banned_IPs.keys():
-        if not check_if_unban(client_ip=client_ip):
-            return
-        else:
-            await websocket.send("SERVER_MESSAGE: Pardoned.")
-
-    # Store a copy of the connected client
-    connected.append((client_id, websocket))
-    client_id += 1
-    # Handle incoming messages
-    try:
-        async for message in websocket:
-            print("Received message from ip: " + message)
-            # ban Rum
-            if message == "Rum":
-                await ban(websocket=websocket)
-                return
-
-            # get current sender's id to use as a name
-            current_id = 0
-            for clients in connected:
-                if clients[1] == websocket:
-                    current_id = clients[0]
-                    break
-
-            for conn in connected:
-                print(f"sending to {conn[0]}")
-                await conn[1].send(f"{message}")
-
-    # Handle disconnecting ips
-    except websockets.exceptions.ConnectionClosed as e:
-        print("A client just disconnected")
-    finally:
-        await disconnect(websocket)
-
-
-async def disconnect(websocket):
-    print("disconnected")
-    for client in connected:
-        if client[1] == websocket:
-            connected.remove(client)
-            await websocket.close()
-
-
-async def ban(websocket):
-    print("banned")
-    await websocket.send("SERVER_MESSAGE: Banned.")
-    banned_IPs[websocket.remote_address[0]] = time.time()
-    await disconnect(websocket)
-
-
-def check_if_unban(client_ip):
-    if time.time() - banned_IPs[client_ip] > unban_time:
-        banned_IPs.__delitem__(client_ip)
-        print(f"unbanned: {client_ip}")
-        return True
-
-    return False
-
 import asyncio
-import websockets
 import threading
 from werkzeug.serving import run_simple
 
-async def run_websockets_server():
-    start_server = await websockets.serve(echo, "0.0.0.0", PORT)
-    await start_server.wait_closed()
 
 def run_flask_app():
     app.secret_key = 'your_secret_key'
     run_simple("0.0.0.0", 5000, app, use_reloader=False, use_debugger=True)
 
+import database
+
 if __name__ == '__main__':
-    # Create an asyncio event loop in the main thread
-    loop = asyncio.get_event_loop()
-
-    # Create two threads for running Flask app and WebSockets server
-    flask_thread = threading.Thread(target=run_flask_app)
-    websockets_thread = threading.Thread(target=lambda: loop.run_until_complete(run_websockets_server()))
-
-    # Start both threads
-    flask_thread.start()
-    websockets_thread.start()
-
-    # Wait for both threads to finish
-    flask_thread.join()
-    websockets_thread.join()
+    conn = database.get_conn()
+    run_flask_app()

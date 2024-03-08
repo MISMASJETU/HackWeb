@@ -14,7 +14,13 @@ CREATE TABLE [Order]
 (
     [id] INT IDENTITY(1,1) PRIMARY KEY,
     [id_user] INT NOT NULL,
-    [creationTime] DATETIME NOT NULL,
+    [cancelled] BIT NOT NULL DEFAULT 0,
     [message] NVARCHAR(1000),
     CONSTRAINT [FK_Order_User] FOREIGN KEY ([id_user]) REFERENCES [User]([id])
 );
+
+insert into [User] values('test1','password1',0, NULL, NULL);
+insert into [User] values('test2','password2',0, NULL, NULL);
+insert into [User] values('test3','password3',0, NULL, NULL);
+
+select * from [User];
