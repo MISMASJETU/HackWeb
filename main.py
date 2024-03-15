@@ -13,7 +13,6 @@ conn = None
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the random string'
 bcrypt = Bcrypt(app)
-#socketio = SocketIO(app, logger=False, engineio_logger=False)
 
 
 # File paths
@@ -116,7 +115,9 @@ def add_user(username, password):
     hashed_password = generate_password_hash(password).decode('utf-8')
 
     # Add the new user to the dictionary
-    database.execute_insert(conn, cursor, "INSERT INTO [User] (username, password) VALUES (?, ?)", (username, hashed_password))
+    database.execute_insert(conn, cursor,
+                            "INSERT INTO [User] (username, password) VALUES (?, ?)",
+                            (username, hashed_password))
 
     return {"success": True, "message": "User added successfully"}
 
