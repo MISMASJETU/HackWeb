@@ -19,7 +19,7 @@ function createOrder() {
     fetchRooms();
 }
 
-function createRoomPreview(message, id) {
+function createRoomPreview(message, id, username) {
     var postDiv = document.createElement("div");
     postDiv.classList.add("Blog");
 
@@ -36,20 +36,10 @@ function createRoomPreview(message, id) {
     } else {
         locked = "Yes"
     }*/
-    infoElement.innerText = message;
+    infoElement.innerText = message + " by " + username;
 
     //postDiv.appendChild(titleElement);
     postDiv.appendChild(infoElement);
-
-    var joinButton = document.createElement("button");
-    joinButton.innerText = "Cancel";
-    joinButton.dataset.roomId = id;  // Set the room ID as a data attribute
-    joinButton.addEventListener("click", function() {
-        // Send a WebSocket message to join the room
-        //socket.emit('join_room', {room_id: id});
-    });
-
-    postDiv.appendChild(joinButton);
 
     var messagesDiv = document.getElementById("rooms");
     messagesDiv.appendChild(postDiv);
@@ -76,7 +66,7 @@ function updateRoomPreviews(rooms) {
     // Add the updated room previews
     for (var i = 0; i < rooms.length; i++) {
         var room = rooms[i];
-        createRoomPreview(room.message, room.id);
+        createRoomPreview(room.message, room.id, room.username);
     }
 
     // Add click event listeners to join buttons

@@ -155,7 +155,7 @@ def get_posts():
     cursor = database.execute_select(cursor, "SELECT [id] FROM [User] WHERE [username] = '" + str(session['username'] + "'"))
     user_id = cursor.fetchall()[0][0]
 
-    cursor = database.execute_select(cursor, "SELECT * FROM [Order] WHERE [id_user] = " + str(user_id))
+    cursor = database.execute_select(cursor, "SELECT O.[id], O.[message], U.[username] FROM [Order] O INNER JOIN [User] U on U.id = O.id_user WHERE [id_user] = " + str(user_id))
     orders = list()
     for row in cursor.fetchall():
         if row[2] == 1:
@@ -163,7 +163,8 @@ def get_posts():
 
         order = {
             'id': int(row[0]),
-            'message': str(row[3])
+            'message': str(row[1]),
+            'username' : str(row[2])
         }
         orders.append(order)
 
