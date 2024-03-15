@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 import json
 import os
 import hashlib
+from werkzeug.serving import run_simple
 from flask_socketio import SocketIO, emit
 
 conn = None
@@ -185,16 +186,9 @@ def chat_hash(name, id):
     return int(hashed_value, 16)
 
 
-
-
-import asyncio
-import time
-
 PORT = 8080
 
-import asyncio
-import threading
-from werkzeug.serving import run_simple
+
 
 
 def run_flask_app():

@@ -23,22 +23,9 @@ function createRoomPreview(message, id, username) {
     var postDiv = document.createElement("div");
     postDiv.classList.add("Blog");
 
-    // var titleElement = document.createElement("h2");
-    // titleElement.innerText = title + " by " + author;
-
-    // var contentsElement = document.createElement("p");
-    // contentsElement.innerText = users;
-
     var infoElement = document.createElement("p");
-    //var locked = "";
-    /*if (visibility == "visible") {
-        locked = "No"
-    } else {
-        locked = "Yes"
-    }*/
     infoElement.innerText = message + " by " + username;
 
-    //postDiv.appendChild(titleElement);
     postDiv.appendChild(infoElement);
 
     var messagesDiv = document.getElementById("rooms");
@@ -77,61 +64,3 @@ function updateRoomPreviews(rooms) {
         });
     });
 }
-
-/*
-var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-socket.on('connect', function() {
-    console.log('Socket connected');
-});
-
-socket.on('update_room', function(data) {
-    updateCurrentRoom(data.room_id, data.contents);
-});
-
-
-function joinRoom(roomId) {
-    // Update the server that the user has joined the room
-    socket.emit('join_room', {room_id: roomId});
-
-    // Fetch previous messages from the server
-    fetch('/api/rooms/' + roomId)
-        .then(response => response.json())
-        .then(data => {
-            updateCurrentRoom(roomId, data.contents);
-        })
-        .catch(error => console.error('Error fetching previous messages:', error));
-}
-
-// Function to update the current room with messages
-function updateCurrentRoom(roomId, contents) {
-    var currentRoomDiv = document.getElementById("current_room");
-
-    // Clear existing messages and form
-    currentRoomDiv.innerHTML = "";
-
-    // Add the previous messages
-    for (var i = 0; i < contents.length; i++) {
-        var messageDiv = document.createElement("div");
-        messageDiv.innerText = contents[i].author + ": " + contents[i].message;
-        currentRoomDiv.appendChild(messageDiv);
-    }
-
-    // Add input field and send button
-    var messageInput = document.createElement("input");
-    messageInput.type = "text";
-    messageInput.placeholder = "Type your message...";
-    currentRoomDiv.appendChild(messageInput);
-
-    var sendButton = document.createElement("button");
-    sendButton.innerText = "Send";
-    sendButton.addEventListener("click", function() {
-        event.preventDefault();  // Prevent the form submission
-        // Send a WebSocket message with the new message
-        socket.emit('new_message', {room_id: roomId, message: messageInput.value});
-        console.log("Sent out " + {room_id: roomId, message: messageInput.value});
-        messageInput.value = "";  // Clear the input field
-    });
-    currentRoomDiv.appendChild(sendButton);
-}
-*/
